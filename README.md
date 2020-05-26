@@ -12,6 +12,7 @@ In order to run the examples, the CEF supporting files must be placed beside the
 ## TODO
 - add window functions (close, resize, etc. for JS callbacks especially)
 - console output
+- application icon
 
 ## CEF Version and Compatibility
 83.3.9+ged43e55+chromium-83.0.4103.61

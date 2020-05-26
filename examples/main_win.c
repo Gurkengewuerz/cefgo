@@ -11,6 +11,7 @@
 #include "handlers/cef_vars.h"
 #include "handlers/cef_utils.h"
 
+// TODO. rewrite for subprocess
 
 int main(int argc, char** argv) {
     // This executable is called many times, because it

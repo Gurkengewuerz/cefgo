@@ -39,12 +39,8 @@ func main() {
 		return "Test aus Funktion!"
 	}
 
-	client = &cef.CEF{
-		Logger:      log.New(os.Stdout, "[example app]", 0),
-		GuiSettings: guiSettings,
-	}
+	client = cef.New(guiSettings, log.New(os.Stdout, "[example app]", 0))
 
-	client.Init()
 	client.OpenWindow()
 	//client.Eval("console.log(\"Example\");")
 	client.Run()

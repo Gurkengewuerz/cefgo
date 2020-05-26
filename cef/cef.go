@@ -33,18 +33,17 @@ import (
 )
 
 type CEF struct {
-	Logger *log.Logger
-	GuiSettings GuiSettings
-	mainArgs *C.struct__cef_main_args_t
-	appHandler *C.struct__app
+	logger      *log.Logger
+	guiSettings GuiSettings
+	mainArgs    *C.struct__cef_main_args_t
+	appHandler  *C.struct__app
 	cefSettings *C.struct__cef_settings_t
 }
 
-var _BindFunc map[string]func(req string)(interface{}, error)
-
+var _BindFunc map[string]func(req string) (interface{}, error)
 
 func (cefClient *CEF) SetLogger(logger *log.Logger) {
-	cefClient.Logger = logger
+	cefClient.logger = logger
 }
 
 func (cefClient *CEF) initializeGlobalCStructures() {
@@ -52,40 +51,31 @@ func (cefClient *CEF) initializeGlobalCStructures() {
 	cefClient.appHandler = (*C.struct__app)(C.calloc(1, C.sizeof_struct__app))
 }
 
-func (cefClient *CEF) Init() {
-	if cefClient.Logger == nil {
-		cefClient.Logger = log.New(ioutil.Discard, "cef", log.LstdFlags)
+func New(settings GuiSettings, logger *log.Logger) *CEF {
+	if logger == nil {
+		logger = log.New(ioutil.Discard, "cef", log.LstdFlags)
 	}
 
-	cefClient.initializeGlobalCStructures()
-	cefClient.fillMainArgs()
-
-	_BindFunc = make(map[string]func(req string)(interface{}, error))
-	for name, i := range cefClient.GuiSettings.BindFunc {
-		_ = cefClient.bind(name, i)
-	}
-	
-	var cFuncArray **C.char
-	funcArraySize := 0
-	if len(_BindFunc) > 0 {
-		argv := make([]*C.char, len(_BindFunc))
-		idx := 0
-		for name, _ := range _BindFunc {
-			cs := C.CString(name)
-			argv[idx] = cs
-			idx++
-		}
-		cFuncArray = &argv[0]
-		funcArraySize = idx
+	c := &CEF{
+		logger:      logger,
+		guiSettings: settings,
+		mainArgs:    nil,
+		appHandler:  nil,
+		cefSettings: nil,
 	}
 
-	exitCode := int(C.execute_process(cefClient.appHandler, cefClient.mainArgs, cFuncArray, C.int(funcArraySize)))
-	if exitCode >= 0 {
-		os.Exit(exitCode)
-	}
+	c.initializeGlobalCStructures()
+	c.fillMainArgs()
+	C.init(c.appHandler)
+
+	return c
 }
 
-func (cefClient *CEF)bind(name string, f interface{}) error {
+func (cefClient *CEF) InitSubprocess() int {
+	return int(C.execute_process(cefClient.appHandler, cefClient.mainArgs))
+}
+
+func (cefClient *CEF) bind(name string, f interface{}) error {
 	v := reflect.ValueOf(f)
 	// f must be a function
 	if v.Kind() != reflect.Func {
@@ -159,38 +149,56 @@ func (cefClient *CEF) boolToCInt(x bool) C.int {
 }
 
 func (cefClient *CEF) OpenWindow() {
-	cefClient.Logger.Println("ExecuteProcess, args=", os.Args)
+	cefClient.logger.Println("ExecuteProcess")
 
-	cefClient.initializeSettings(cefClient.GuiSettings.Settings)
+	_BindFunc = make(map[string]func(req string) (interface{}, error))
+	for name, i := range cefClient.guiSettings.BindFunc {
+		_ = cefClient.bind(name, i)
+	}
 
-	cWindowName := C.CString(cefClient.GuiSettings.WindowName)
+	var cFuncArray **C.char
+	funcArraySize := 0
+	if len(_BindFunc) > 0 {
+		argv := make([]*C.char, len(_BindFunc))
+		idx := 0
+		for name := range _BindFunc {
+			cs := C.CString(name)
+			argv[idx] = cs
+			idx++
+		}
+		cFuncArray = &argv[0]
+		funcArraySize = idx
+	}
+
+	cefClient.initializeSettings(cefClient.guiSettings.Settings)
+
+	cWindowName := C.CString(cefClient.guiSettings.WindowName)
 	defer C.free(unsafe.Pointer(cWindowName))
-	cStartURL := C.CString(cefClient.GuiSettings.StartURL)
+	cStartURL := C.CString(cefClient.guiSettings.StartURL)
 	defer C.free(unsafe.Pointer(cStartURL))
 
 	var gs C.struct__gui_settings
-	gs.url = C.CString(cefClient.GuiSettings.StartURL)
-	gs.title = C.CString(cefClient.GuiSettings.WindowName)
-	gs.frameless = cefClient.boolToCInt(cefClient.GuiSettings.IsFrameless)
-	gs.maximized = cefClient.boolToCInt(cefClient.GuiSettings.IsMaximized)
-	gs.fullscreen = cefClient.boolToCInt(cefClient.GuiSettings.IsFullscreen)
-	gs.can_maximize = cefClient.boolToCInt(cefClient.GuiSettings.CanMaximize)
-	gs.can_minimize = cefClient.boolToCInt(cefClient.GuiSettings.CanMinimize)
-	gs.can_resize = cefClient.boolToCInt(cefClient.GuiSettings.CanResize)
-	gs.height = C.int(cefClient.GuiSettings.Height)
-	gs.width = C.int(cefClient.GuiSettings.Width)
-	gs.window_icon = C.CString(cefClient.GuiSettings.WindowIcon)
-	gs.window_app_icon = C.CString(cefClient.GuiSettings.WindowAppIcon)
+	gs.url = C.CString(cefClient.guiSettings.StartURL)
+	gs.title = C.CString(cefClient.guiSettings.WindowName)
+	gs.frameless = cefClient.boolToCInt(cefClient.guiSettings.IsFrameless)
+	gs.maximized = cefClient.boolToCInt(cefClient.guiSettings.IsMaximized)
+	gs.fullscreen = cefClient.boolToCInt(cefClient.guiSettings.IsFullscreen)
+	gs.can_maximize = cefClient.boolToCInt(cefClient.guiSettings.CanMaximize)
+	gs.can_minimize = cefClient.boolToCInt(cefClient.guiSettings.CanMinimize)
+	gs.can_resize = cefClient.boolToCInt(cefClient.guiSettings.CanResize)
+	gs.height = C.int(cefClient.guiSettings.Height)
+	gs.width = C.int(cefClient.guiSettings.Width)
+	gs.window_icon = C.CString(cefClient.guiSettings.WindowIcon)
+	gs.window_app_icon = C.CString(cefClient.guiSettings.WindowAppIcon)
 
-
-	C.init_gui(cefClient.appHandler, cefClient.mainArgs, cefClient.cefSettings, gs)
+	C.init_gui(cefClient.appHandler, cefClient.mainArgs, cefClient.cefSettings, gs, cFuncArray, C.int(funcArraySize))
 }
 
 func (cefClient *CEF) initializeSettings(settings Settings) {
-	cefClient.Logger.Println("Initialize Settings")
+	cefClient.logger.Println("Initialize Settings")
 
 	if cefClient.mainArgs == nil {
-		cefClient.Logger.Println("ERROR: missing a call to ExecuteProcess")
+		cefClient.logger.Println("ERROR: missing a call to ExecuteProcess")
 		return
 	}
 
@@ -201,7 +209,7 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 	// cache_path
 	// ----------
 	if settings.CachePath != "" {
-		cefClient.Logger.Println("CachePath=", settings.CachePath)
+		cefClient.logger.Println("CachePath=", settings.CachePath)
 		var cachePath *C.char = C.CString(settings.CachePath)
 		defer C.free(unsafe.Pointer(cachePath))
 		C.cef_string_from_utf8(cachePath, C.strlen(cachePath), &cefClient.cefSettings.cache_path)
@@ -214,7 +222,7 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 	// log_file
 	// --------
 	if settings.LogFile != "" {
-		cefClient.Logger.Println("LogFile=", settings.LogFile)
+		cefClient.logger.Println("LogFile=", settings.LogFile)
 		var logFile *C.char = C.CString(settings.LogFile)
 		defer C.free(unsafe.Pointer(logFile))
 		C.cef_string_from_utf8(logFile, C.strlen(logFile), &cefClient.cefSettings.log_file)
@@ -228,7 +236,7 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 		settings.ResourcesDirPath = cwd
 	}
 	if settings.ResourcesDirPath != "" {
-		cefClient.Logger.Println("ResourcesDirPath=", settings.ResourcesDirPath)
+		cefClient.logger.Println("ResourcesDirPath=", settings.ResourcesDirPath)
 	}
 	var resourcesDirPath *C.char = C.CString(settings.ResourcesDirPath)
 	defer C.free(unsafe.Pointer(resourcesDirPath))
@@ -242,7 +250,7 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 		settings.LocalesDirPath = cwd + "/locales"
 	}
 	if settings.LocalesDirPath != "" {
-		cefClient.Logger.Println("LocalesDirPath=", settings.LocalesDirPath)
+		cefClient.logger.Println("LocalesDirPath=", settings.LocalesDirPath)
 	}
 	var localesDirPath *C.char = C.CString(settings.LocalesDirPath)
 	defer C.free(unsafe.Pointer(localesDirPath))
@@ -254,32 +262,44 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 		var userAgent *C.char = C.CString(settings.UserAgent)
 		defer C.free(unsafe.Pointer(userAgent))
 		C.cef_string_from_utf8(userAgent, C.strlen(userAgent), &cefClient.cefSettings.user_agent)
-		cefClient.Logger.Println("UserAgent=", settings.UserAgent)
+		cefClient.logger.Println("UserAgent=", settings.UserAgent)
 	}
 
 	// remote_debugging_port
 	// --------
 	cefClient.cefSettings.remote_debugging_port = C.int(settings.RemoteDebuggingPort)
-	cefClient.Logger.Println("RemoteDebuggingPort=", settings.RemoteDebuggingPort)
+	cefClient.logger.Println("RemoteDebuggingPort=", settings.RemoteDebuggingPort)
 
 	// IgnoreCertificateErrors
 	// --------
 	cefClient.cefSettings.ignore_certificate_errors = cefClient.boolToCInt(settings.IgnoreCertificateErrors)
-	cefClient.Logger.Println("IgnoreCertificateErrors=", settings.IgnoreCertificateErrors)
+	cefClient.logger.Println("IgnoreCertificateErrors=", settings.IgnoreCertificateErrors)
 
 	// CommandLineArgsDisabled
 	// --------
 	cefClient.cefSettings.command_line_args_disabled = cefClient.boolToCInt(settings.CommandLineArgsDisabled)
-	cefClient.Logger.Println("CommandLineArgsDisabled=", settings.CommandLineArgsDisabled)
+	cefClient.logger.Println("CommandLineArgsDisabled=", settings.CommandLineArgsDisabled)
+
+	// user_agbrowser_subprocess_path
+	//--------
+	cwd, _ := os.Getwd()
+	cwd = cwd + "/helper"
+	if runtime.GOOS == "windows" {
+		cwd = cwd + ".exe"
+	}
+	var cwdC *C.char = C.CString(cwd)
+	defer C.free(unsafe.Pointer(cwdC))
+	C.cef_string_from_utf8(cwdC, C.strlen(cwdC), &cefClient.cefSettings.browser_subprocess_path)
+	cefClient.logger.Println("SubprocessPath=", cwd)
 
 	// no_sandbox
 	// ----------
 	cefClient.cefSettings.no_sandbox = C.int(1)
 }
 
-func (cefClient *CEF)Eval(js string) {
+func (cefClient *CEF) Eval(js string) {
 	if cefClient.mainArgs == nil {
-		cefClient.Logger.Println("ERROR: missing a call to ExecuteProcess")
+		cefClient.logger.Println("ERROR: missing a call to ExecuteProcess")
 		return
 	}
 
@@ -288,6 +308,6 @@ func (cefClient *CEF)Eval(js string) {
 	C.eval_js(cJS)
 }
 
-func (cefClient *CEF)Run() {
+func (cefClient *CEF) Run() {
 	C.run()
 }

@@ -18,17 +18,15 @@
 #include "include/capi/cef_frame_capi.h"
 #include "include/capi/cef_v8_capi.h"
 
-int execute_process(app *a, cef_main_args_t *main_args, char *goFuncMap[], int funcMapLength) {
-    funcLength = funcMapLength;
-    if (funcMapLength > 0) {
-        funcMap = &goFuncMap[0];
-    }
-
+void init(app *a) {
     // Cef app
     initialize_app_handler(a);
     cef_app_t *app = (cef_app_t *)a;
     app->base.add_ref((cef_base_ref_counted_t *)a);
+}
 
+int execute_process(app *a, cef_main_args_t *main_args) {
+    cef_app_t *app = (cef_app_t *)a;
     // Execute subprocesses. It is also possible to have
     // a separate executable for subprocesses by setting
     // cef_settings_t.browser_subprocess_path. In such
@@ -42,8 +40,16 @@ void init_gui(
     app *a,
     cef_main_args_t *main_args,
     cef_settings_t *settings,
-    gui_settings guiSettings) {
+    gui_settings guiSettings,
+    char *goFuncMap[],
+    int funcMapLength) {
     DEBUG_CALLBACK("init_gui\n");
+
+    funcLength = funcMapLength;
+    if (funcMapLength > 0) {
+        funcMap = &goFuncMap[0];
+    }
+
     cef_app_t *app = (cef_app_t *)a;
 
     // Initialize CEF

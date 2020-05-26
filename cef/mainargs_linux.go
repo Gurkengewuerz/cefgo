@@ -3,10 +3,10 @@ package cef
 import "C"
 import "os"
 
-func (cefClient *CEF) fillMainArgs()  {
+func (cefClient *CEF) fillMainArgs() {
 	args := os.Args
 
-	cefClient.Logger.Println("fillMainArgs", args, len(args))
+	cefClient.logger.Println("fillMainArgs", args, len(args))
 
 	argv := make([]*C.char, len(args))
 	for idx, arg := range args {
