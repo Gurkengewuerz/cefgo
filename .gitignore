@@ -1,0 +1,7 @@
+!.gitignore
+.idea/
+.vscode/
+include/*
+!include/.gitkeep
+Release/*
+!Release/.gitkeep
