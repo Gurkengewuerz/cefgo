@@ -62,7 +62,7 @@ int CEF_CALLBACK can_minimize (struct _cef_window_delegate_t* self, struct _cef_
 ///
 int CEF_CALLBACK can_close (struct _cef_window_delegate_t* self, struct _cef_window_t* window) {
     DEBUG_CALLBACK("can_close\n");
-    return TRUE;
+    return 1;
 }
 
 void CEF_CALLBACK on_window_created (struct _cef_window_delegate_t* self, struct _cef_window_t* window) {
@@ -106,7 +106,7 @@ void CEF_CALLBACK on_window_created (struct _cef_window_delegate_t* self, struct
     };
     window->center_window(window, &size);
 
-    if(settings->maximized == TRUE) window->maximize(window);
+    if(settings->maximized == 1) window->maximize(window);
     window->set_fullscreen(window, settings->fullscreen);
 }
 

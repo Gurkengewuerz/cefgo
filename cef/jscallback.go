@@ -2,6 +2,9 @@ package cef
 
 /*
 #cgo CFLAGS: -I./../
+#include <string.h>
+#include <stdlib.h>
+
 #include "include/capi/cef_v8_capi.h"
 */
 import "C"

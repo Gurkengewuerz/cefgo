@@ -124,7 +124,7 @@ int CEF_CALLBACK on_before_popup (struct _cef_life_span_handler_t* self, struct 
       const cef_string_t* target_url, const cef_string_t* target_frame_name, cef_window_open_disposition_t target_disposition,
       int user_gesture, const struct _cef_popup_features_t* popupFeatures, struct _cef_window_info_t* windowInfo, struct _cef_client_t** client,
       struct _cef_browser_settings_t* settings, struct _cef_dictionary_value_t** extra_info, int* no_javascript_access) {
-    return TRUE;
+    return 1;
 }
 
 ///

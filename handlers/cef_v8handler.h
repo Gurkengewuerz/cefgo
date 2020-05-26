@@ -1,5 +1,7 @@
 #pragma once
 
+#include "include/internal/cef_string_types.h"
+
 #include "handlers/cef_base.h"
 #include "handlers/cef_life_span_handler.h"
 #include "include/capi/cef_v8_capi.h"

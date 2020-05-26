@@ -2,6 +2,10 @@ package cef
 
 /*
 #cgo CFLAGS: -I./../
+#cgo windows LDFLAGS: -L./../Release -lcef
+#cgo linux LDFLAGS: -L./../Release -lcef -Wl,-rpath=./
+#cgo darwin LDFLAGS: -L./../Release -lcef -Wl,-rpath=./
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -60,7 +64,7 @@ func (cefClient *CEF) Init() {
 	for name, i := range cefClient.GuiSettings.BindFunc {
 		_ = cefClient.bind(name, i)
 	}
-
+	
 	var cFuncArray **C.char
 	funcArraySize := 0
 	if len(_BindFunc) > 0 {
@@ -205,7 +209,7 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 
 	// log_severity
 	// ------------
-	cefClient.cefSettings.log_severity = (C.cef_log_severity_t)(C.int(settings.LogSeverity))
+	cefClient.cefSettings.log_severity = settings.LogSeverity
 
 	// log_file
 	// --------
@@ -260,12 +264,13 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 
 	// IgnoreCertificateErrors
 	// --------
-	if settings.IgnoreCertificateErrors {
-		cefClient.cefSettings.ignore_certificate_errors = C.int(1)
-	} else {
-		cefClient.cefSettings.ignore_certificate_errors = C.int(0)
-	}
+	cefClient.cefSettings.ignore_certificate_errors = cefClient.boolToCInt(settings.IgnoreCertificateErrors)
 	cefClient.Logger.Println("IgnoreCertificateErrors=", settings.IgnoreCertificateErrors)
+
+	// CommandLineArgsDisabled
+	// --------
+	cefClient.cefSettings.command_line_args_disabled = cefClient.boolToCInt(settings.CommandLineArgsDisabled)
+	cefClient.Logger.Println("CommandLineArgsDisabled=", settings.CommandLineArgsDisabled)
 
 	// no_sandbox
 	// ----------

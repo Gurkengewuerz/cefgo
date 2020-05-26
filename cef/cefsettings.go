@@ -19,7 +19,7 @@ const (
 
 type Settings struct {
 	CachePath               string
-	LogSeverity             int
+	LogSeverity             C.cef_log_severity_t
 	LogFile                 string
 	ResourcesDirPath        string
 	LocalesDirPath          string

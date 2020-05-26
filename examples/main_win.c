@@ -56,21 +56,21 @@ int main(int argc, char** argv) {
     // "size" member.
     cef_settings_t settings = {};
     settings.size = sizeof(cef_settings_t);
-    settings.log_severity = LOGSEVERITY_WARNING; // Show only warnings/errors
+    settings.log_severity = LOGSEVERITY_VERBOSE;
     settings.no_sandbox = 1;
     settings.remote_debugging_port = 6696;
 
     gui_settings guiSettings = {};
-    guiSettings.frameless = FALSE;
-    guiSettings.maximized = FALSE;
-    guiSettings.fullscreen = FALSE;
+    guiSettings.frameless = 1;
+    guiSettings.maximized = 0;
+    guiSettings.fullscreen = 0;
     guiSettings.height = 700;
     guiSettings.width = 700;
     guiSettings.url = "https://app01.mc8051.de";
     guiSettings.title = "Example";
-    guiSettings.can_maximize = FALSE;
-    guiSettings.can_minimize = FALSE;
-    guiSettings.can_resize = TRUE;
+    guiSettings.can_maximize = 0;
+    guiSettings.can_minimize = 0;
+    guiSettings.can_resize = 1;
 
     init_gui(a, &main_args, &settings, guiSettings);
 

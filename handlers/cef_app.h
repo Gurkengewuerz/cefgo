@@ -3,11 +3,12 @@
 
 #pragma once
 
+#include "include/capi/cef_app_capi.h"
+#include "include/capi/cef_v8_capi.h"
+
 #include "handlers/cef_vars.h"
 #include "handlers/cef_base.h"
 #include "handlers/cef_v8handler.h"
-#include "include/capi/cef_app_capi.h"
-#include "include/capi/cef_v8_capi.h"
 
 typedef struct _app {
 	cef_app_t app;
@@ -106,8 +107,8 @@ struct _cef_render_process_handler_t*
                 cef_string_utf8_to_utf16(functionName, strlen(functionName), &cef_functionName);
                 handler->base.add_ref((cef_base_ref_counted_t *)h);
                 cef_v8value_t *fn = cef_v8value_create_function(&cef_functionName, handler);
-                int status = invocation->set_value_bykey(invocation, &cef_functionName, fn, V8_PROPERTY_ATTRIBUTE_NONE);
-                DEBUG_CALLBACK("%s -> %d\n", functionName, status);
+                invocation->set_value_bykey(invocation, &cef_functionName, fn, V8_PROPERTY_ATTRIBUTE_NONE);
+                //DEBUG_CALLBACK("%s -> %d\n", functionName, status);
             }
             cntx->exit(cntx);
         }

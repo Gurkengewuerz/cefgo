@@ -6,9 +6,10 @@ import "os"
 func (cefClient *CEF) fillMainArgs()  {
 	args := os.Args
 
+	cefClient.Logger.Println("fillMainArgs", args, len(args))
+
 	argv := make([]*C.char, len(args))
-	idx := 0
-	for arg, _ := range _BindFunc {
+	for idx, arg := range args {
 		cs := C.CString(arg)
 		argv[idx] = cs
 		idx++

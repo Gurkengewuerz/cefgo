@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gurkengewuerz/cefgo/cef"
 	"log"
+	"os"
 )
 
 var client *cef.CEF
@@ -27,8 +28,8 @@ func main() {
 
 	cefSettings := cef.Settings{}
 	cefSettings.RemoteDebuggingPort = 6696
-	cefSettings.LogSeverity = cef.LOGSEVERITY_DEFAULT
-	cefSettings.CommandLineArgsDisabled = true
+	cefSettings.LogSeverity = cef.LOGSEVERITY_VERBOSE
+	cefSettings.CommandLineArgsDisabled = false
 
 	guiSettings.Settings = cefSettings
 
@@ -39,7 +40,7 @@ func main() {
 	}
 
 	client = &cef.CEF{
-		Logger:      nil,
+		Logger:      log.New(os.Stdout, "[example app]", 0),
 		GuiSettings: guiSettings,
 	}
 
