@@ -8,6 +8,6 @@ package cef
 import "C"
 import "unsafe"
 
-func (cefClient *CEF) fillMainArgs()  {
-	cefClient.mainArgs.instance = (C.HINSTANCE)(unsafe.Pointer(GetModuleHandle()))
+func (cefClient *CEF) fillMainArgs() (int, []*C.char, C.HINSTANCE) {
+	return 0, nil, (C.HINSTANCE)(unsafe.Pointer(GetModuleHandle()))
 }

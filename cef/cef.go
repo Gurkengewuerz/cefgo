@@ -1,7 +1,7 @@
 package cef
 
 /*
-#cgo CFLAGS: -I./../
+#cgo CFLAGS: -I./../ -DIS_GO=TRUE
 #cgo windows LDFLAGS: -L./../Release -lcef
 #cgo linux LDFLAGS: -L./../Release -lcef -Wl,-rpath=./
 #cgo darwin LDFLAGS: -L./../Release -lcef -Wl,-rpath=./
@@ -11,11 +11,6 @@ package cef
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "handlers/cef_app.h"
-#include "handlers/cef_client.h"
-#include "handlers/cef_base.h"
-#include "handlers/cef_window_delegate.h"
-#include "handlers/cef_vars.h"
 #include "handlers/cef_utils.h"
 */
 import "C"
@@ -35,7 +30,6 @@ import (
 type CEF struct {
 	logger      *log.Logger
 	guiSettings GuiSettings
-	mainArgs    *C.struct__cef_main_args_t
 	appHandler  *C.struct__app
 	cefSettings *C.struct__cef_settings_t
 }
@@ -47,7 +41,6 @@ func (cefClient *CEF) SetLogger(logger *log.Logger) {
 }
 
 func (cefClient *CEF) initializeGlobalCStructures() {
-	cefClient.mainArgs = (*C.struct__cef_main_args_t)(C.calloc(1, C.sizeof_struct__cef_main_args_t))
 	cefClient.appHandler = (*C.struct__app)(C.calloc(1, C.sizeof_struct__app))
 }
 
@@ -59,20 +52,18 @@ func New(settings GuiSettings, logger *log.Logger) *CEF {
 	c := &CEF{
 		logger:      logger,
 		guiSettings: settings,
-		mainArgs:    nil,
 		appHandler:  nil,
 		cefSettings: nil,
 	}
 
 	c.initializeGlobalCStructures()
-	c.fillMainArgs()
 	C.init(c.appHandler)
-
 	return c
 }
 
 func (cefClient *CEF) InitSubprocess() int {
-	return int(C.execute_process(cefClient.appHandler, cefClient.mainArgs))
+	argc, argv, handle := cefClient.fillMainArgs() // &cefClient.args[0]
+	return int(C.execute_process(cefClient.appHandler, C.int(argc), &argv[0], handle))
 }
 
 func (cefClient *CEF) bind(name string, f interface{}) error {
@@ -191,16 +182,13 @@ func (cefClient *CEF) OpenWindow() {
 	gs.window_icon = C.CString(cefClient.guiSettings.WindowIcon)
 	gs.window_app_icon = C.CString(cefClient.guiSettings.WindowAppIcon)
 
-	C.init_gui(cefClient.appHandler, cefClient.mainArgs, cefClient.cefSettings, gs, cFuncArray, C.int(funcArraySize))
+	argc, argv, handle := cefClient.fillMainArgs() // &cefClient.args[0]
+
+	C.init_gui(cefClient.appHandler, cefClient.cefSettings, gs, cFuncArray, C.int(funcArraySize), C.int(argc), &argv[0], handle)
 }
 
 func (cefClient *CEF) initializeSettings(settings Settings) {
 	cefClient.logger.Println("Initialize Settings")
-
-	if cefClient.mainArgs == nil {
-		cefClient.logger.Println("ERROR: missing a call to ExecuteProcess")
-		return
-	}
 
 	// Initialize cef_settings_t structure.
 	cefClient.cefSettings = (*C.struct__cef_settings_t)(C.calloc(1, C.sizeof_struct__cef_settings_t))
@@ -280,17 +268,19 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 	cefClient.cefSettings.command_line_args_disabled = cefClient.boolToCInt(settings.CommandLineArgsDisabled)
 	cefClient.logger.Println("CommandLineArgsDisabled=", settings.CommandLineArgsDisabled)
 
-	// user_agbrowser_subprocess_path
-	//--------
-	cwd, _ := os.Getwd()
-	cwd = cwd + "/helper"
-	if runtime.GOOS == "windows" {
-		cwd = cwd + ".exe"
+	if cefClient.guiSettings.SubExecutable {
+		// browser_subprocess_path
+		//--------
+		cwd, _ := os.Getwd()
+		cwd = cwd + "/helper"
+		if runtime.GOOS == "windows" {
+			cwd = cwd + ".exe"
+		}
+		var cwdC *C.char = C.CString(cwd)
+		defer C.free(unsafe.Pointer(cwdC))
+		C.cef_string_from_utf8(cwdC, C.strlen(cwdC), &cefClient.cefSettings.browser_subprocess_path)
+		cefClient.logger.Println("SubprocessPath=", cwd)
 	}
-	var cwdC *C.char = C.CString(cwd)
-	defer C.free(unsafe.Pointer(cwdC))
-	C.cef_string_from_utf8(cwdC, C.strlen(cwdC), &cefClient.cefSettings.browser_subprocess_path)
-	cefClient.logger.Println("SubprocessPath=", cwd)
 
 	// no_sandbox
 	// ----------
@@ -298,11 +288,6 @@ func (cefClient *CEF) initializeSettings(settings Settings) {
 }
 
 func (cefClient *CEF) Eval(js string) {
-	if cefClient.mainArgs == nil {
-		cefClient.logger.Println("ERROR: missing a call to ExecuteProcess")
-		return
-	}
-
 	cJS := C.CString(js)
 	defer C.free(unsafe.Pointer(cJS))
 	C.eval_js(cJS)

@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __unix__
+#define HINSTANCE int
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,9 +11,8 @@
 
 #include "handlers/cef_vars.h"
 #include "handlers/cef_app.h"
-#include "handlers/cef_client.h"
-#include "handlers/cef_base.h"
 #include "handlers/cef_settings.h"
+#include "handlers/cef_window_delegate.h"
 
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_base_capi.h"
@@ -25,25 +28,60 @@ void init(app *a) {
     app->base.add_ref((cef_base_ref_counted_t *)a);
 }
 
-int execute_process(app *a, cef_main_args_t *main_args) {
+int execute_process(app *a, int argc, char** argv, HINSTANCE instance) {
+
+    cef_main_args_t main_args = {};
+    // Main args
+    #ifdef __unix__
+    main_args.argc = argc;
+    main_args.argv = argv;
+    #else
+    #ifndef IS_GO
+    main_args.instance = GetModuleHandle(NULL);
+    #else
+    main_args.instance = instance;
+    #endif
+    #endif
+
+    printf("->>>>>>>>%s\n", main_args.argv[0]);
+
+    printf("\nProcess args (2 => %d): ", argc);
+    if (argc == 1) {
+        printf("none (Main process)");
+    } else {
+        for(int index = 0; index < argc; index++) {
+            printf("%s ", argv[index]);
+        }
+    }
+    printf("\n\n");
+
     cef_app_t *app = (cef_app_t *)a;
-    // Execute subprocesses. It is also possible to have
-    // a separate executable for subprocesses by setting
-    // cef_settings_t.browser_subprocess_path. In such
-    // case cef_execute_process should not be called here.
     app->base.add_ref((cef_base_ref_counted_t *)a);
-    int code = cef_execute_process(main_args, app, NULL);
+    int code = cef_execute_process(&main_args, app, NULL);
     return code;
 }
 
 void init_gui(
     app *a,
-    cef_main_args_t *main_args,
     cef_settings_t *settings,
     gui_settings guiSettings,
     char *goFuncMap[],
-    int funcMapLength) {
+    int funcMapLength,
+    int argc, char** argv, HINSTANCE instance) {
     DEBUG_CALLBACK("init_gui\n");
+
+    cef_main_args_t main_args = {};
+    // Main args
+    #ifdef __unix__
+    main_args.argc = argc;
+    main_args.argv = argv;
+    #else
+    #ifndef IS_GO
+    main_args.instance = GetModuleHandle(NULL);
+    #else
+    main_args.instance = instance;
+    #endif
+    #endif
 
     funcLength = funcMapLength;
     if (funcMapLength > 0) {
@@ -55,7 +93,7 @@ void init_gui(
     // Initialize CEF
     DEBUG_CALLBACK("cef_initialize\n");
     app->base.add_ref((cef_base_ref_counted_t *)a);
-    cef_initialize(main_args, settings, app, NULL);
+    cef_initialize(&main_args, settings, app, NULL);
     app->base.release((cef_base_ref_counted_t *)a);
 
     // Create the Window. It will show itself after creation.

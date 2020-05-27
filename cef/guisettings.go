@@ -11,6 +11,7 @@ type GuiSettings struct {
 	CanResize     bool
 	Height        int
 	Width         int
+	SubExecutable bool
 	WindowIcon    string
 	WindowAppIcon string
 	Settings      Settings

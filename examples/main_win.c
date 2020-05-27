@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
     if (argc == 1) {
         printf("none (Main process)");
     } else {
-        for (int i = 1; i < argc; i++) {
+        for (int i = i; i < argc; i++) {
             if (strlen(argv[i]) > 128)
                 printf("... ");
             else
@@ -36,19 +36,13 @@ int main(int argc, char** argv) {
     }
     printf("\n\n");
 
-    cef_main_args_t main_args = {};
-    // Main args
-    #ifdef __unix__
-    main_args.argc = argc;
-    main_args.argv = argv;
-    #else
-    main_args.instance = GetModuleHandle(NULL);
-    #endif
 
     // Cef app
     app *a = calloc(1, sizeof(app));
 
-    int code = execute_process(a, &main_args, NULL, 0);
+    init(a);
+
+    int code = execute_process(a, argc, argv, 0);
     if (code >= 0) {
         _exit(code);
     } 
@@ -62,7 +56,7 @@ int main(int argc, char** argv) {
     settings.remote_debugging_port = 6696;
 
     gui_settings guiSettings = {};
-    guiSettings.frameless = 1;
+    guiSettings.frameless = 0;
     guiSettings.maximized = 0;
     guiSettings.fullscreen = 0;
     guiSettings.height = 700;
@@ -73,7 +67,7 @@ int main(int argc, char** argv) {
     guiSettings.can_minimize = 0;
     guiSettings.can_resize = 1;
 
-    init_gui(a, &main_args, &settings, guiSettings);
+    init_gui(a, &settings, guiSettings, NULL, 0, argc, argv, 0);
 
     run();
 

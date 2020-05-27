@@ -120,13 +120,6 @@ struct _cef_keyboard_handler_t* CEF_CALLBACK get_keyboard_handler(
     return NULL;
 }
 
-int CEF_CALLBACK on_before_popup (struct _cef_life_span_handler_t* self, struct _cef_browser_t* browser, struct _cef_frame_t* frame,
-      const cef_string_t* target_url, const cef_string_t* target_frame_name, cef_window_open_disposition_t target_disposition,
-      int user_gesture, const struct _cef_popup_features_t* popupFeatures, struct _cef_window_info_t* windowInfo, struct _cef_client_t** client,
-      struct _cef_browser_settings_t* settings, struct _cef_dictionary_value_t** extra_info, int* no_javascript_access) {
-    return 1;
-}
-
 ///
 // Return the handler for browser life span events.
 ///
@@ -142,6 +135,7 @@ struct _cef_life_span_handler_t* CEF_CALLBACK get_life_span_handler(
 
     initialize_cef_base(h);
     handler->on_before_popup = on_before_popup;
+    handler->on_after_created = on_after_created;
     handler->on_before_close = on_before_close;
 
     handler->base.add_ref((cef_base_ref_counted_t *)h);

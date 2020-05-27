@@ -12,12 +12,13 @@ func main() {
 	guiSettings := cef.GuiSettings{
 		WindowName:    "CEF Test",
 		StartURL:      "https://app01.mc8051.de",
-		IsFrameless:   true,
+		IsFrameless:   false,
 		IsMaximized:   false,
 		IsFullscreen:  false,
 		CanMaximize:   true,
 		CanMinimize:   true,
 		CanResize:     true,
+		SubExecutable: false,
 		Height:        700,
 		Width:         450,
 		WindowIcon:    "",
@@ -40,6 +41,11 @@ func main() {
 	}
 
 	client = cef.New(guiSettings, log.New(os.Stdout, "[example app]", 0))
+
+	exitCode := client.InitSubprocess()
+	if exitCode >= 0 {
+		os.Exit(exitCode)
+	}
 
 	client.OpenWindow()
 	//client.Eval("console.log(\"Example\");")

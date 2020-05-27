@@ -42,6 +42,10 @@ void CEF_CALLBACK on_before_command_line_processing(
         struct _cef_app_t* self, const cef_string_t* process_type,
         struct _cef_command_line_t* command_line) {
     DEBUG_CALLBACK("on_before_command_line_processing\n");
+    cef_string_t ct = {};
+    char* s = "disable-gpu";
+    cef_string_utf8_to_utf16(s, strlen(s), &ct);
+    command_line->append_switch(command_line, &ct);
 }
 
 ///

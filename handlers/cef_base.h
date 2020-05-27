@@ -19,7 +19,7 @@
 // Print only the first execution of the callback,
 // ignore the subsequent.
 #define DEBUG_CALLBACK(x) { \
-    static int first_call = 0; \
+    static int first_call = 1; \
     if (first_call == 1) { \
         first_call = 0; \
         printf(x); \
@@ -101,10 +101,12 @@ struct _app;
 struct _invocation_handler;
 struct _drag_handler;
 struct _view_delegate_t;
+struct _browser_view_delegate_t;
 
 
 void initialize_life_span_handler_t_base(struct _life_span_handler_t *object);
 void initialize_view_delegate_t_base(struct _view_delegate_t *object);
+void initialize_browser_view_delegate_t_base(struct _browser_view_delegate_t *object);
 void initialize_drag_handler_base(struct _drag_handler *object);
 void initialize_client_t_base(struct _client_t *object);
 void initialize_app_base(struct _app *object);
@@ -114,6 +116,7 @@ void initialize_invocation_handler_base(struct _invocation_handler *object);
     _Generic((T), \
 	struct _life_span_handler_t*: initialize_life_span_handler_t_base, \
 	struct _view_delegate_t*: initialize_view_delegate_t_base, \
+	struct _browser_view_delegate_t*: initialize_browser_view_delegate_t_base, \
 	struct _drag_handler*: initialize_drag_handler_base, \
 	struct _client_t*: initialize_client_t_base, \
 	struct _app*: initialize_app_base, \

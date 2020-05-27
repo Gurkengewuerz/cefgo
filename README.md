@@ -8,8 +8,11 @@ In order to run the examples, the CEF supporting files must be placed beside the
 - JS to Go callbacks
 - Go to JS eval
 - frameless window
+- single and sub executable support
+- Tested on Windows and Linux (macOS should work using seperate processes)
 
 ## TODO
+- **Fix arg calls on windows (use HINSTANCE and use NULL on \*\*C.char**
 - add window functions (close, resize, etc. for JS callbacks especially)
 - console output
 - application icon

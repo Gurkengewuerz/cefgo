@@ -1,20 +1,27 @@
 package cef
 
+/*
+#cgo CFLAGS: -I./../
+#include <stdlib.h>
+
+#ifdef __unix__
+#define HINSTANCE int
+#endif
+*/
 import "C"
 import "os"
 
-func (cefClient *CEF) fillMainArgs() {
+func (cefClient *CEF) fillMainArgs() (int, []*C.char, C.HINSTANCE) {
 	args := os.Args
 
 	cefClient.logger.Println("fillMainArgs", args, len(args))
 
-	argv := make([]*C.char, len(args))
+	arglist := make([]*C.char, len(args))
 	for idx, arg := range args {
 		cs := C.CString(arg)
-		argv[idx] = cs
+		arglist[idx] = cs
 		idx++
 	}
 
-	cefClient.mainArgs.argc = C.int(len(args))
-	cefClient.mainArgs.argv = &argv[0]
+	return len(args), arglist, 0
 }
