@@ -12,6 +12,7 @@ package cef
 #include <unistd.h>
 
 #include "handlers/cef_utils.h"
+#include "handlers/cef_window_helper.h"
 */
 import "C"
 import (
@@ -68,7 +69,28 @@ func (cefClient *CEF) InitSubprocess() int {
 		args = &argv[0]
 	}
 
-	return int(C.execute_process(cefClient.appHandler, C.int(argc), args, handle))
+	_BindFunc = make(map[string]func(req string) (interface{}, error))
+	if cefClient.guiSettings.BindFunc != nil {
+		for name, i := range cefClient.guiSettings.BindFunc {
+			_ = cefClient.bind(name, i)
+		}
+	}
+
+	var cFuncArray **C.char
+	funcArraySize := 0
+	if len(_BindFunc) > 0 {
+		argv := make([]*C.char, len(_BindFunc))
+		idx := 0
+		for name := range _BindFunc {
+			cs := C.CString(name)
+			argv[idx] = cs
+			idx++
+		}
+		cFuncArray = &argv[0]
+		funcArraySize = idx
+	}
+
+	return int(C.execute_process(cefClient.appHandler, cFuncArray, C.int(funcArraySize), C.int(argc), args, handle))
 }
 
 func (cefClient *CEF) bind(name string, f interface{}) error {
@@ -147,25 +169,6 @@ func (cefClient *CEF) boolToCInt(x bool) C.int {
 func (cefClient *CEF) OpenWindow() {
 	cefClient.logger.Println("ExecuteProcess")
 
-	_BindFunc = make(map[string]func(req string) (interface{}, error))
-	for name, i := range cefClient.guiSettings.BindFunc {
-		_ = cefClient.bind(name, i)
-	}
-
-	var cFuncArray **C.char
-	funcArraySize := 0
-	if len(_BindFunc) > 0 {
-		argv := make([]*C.char, len(_BindFunc))
-		idx := 0
-		for name := range _BindFunc {
-			cs := C.CString(name)
-			argv[idx] = cs
-			idx++
-		}
-		cFuncArray = &argv[0]
-		funcArraySize = idx
-	}
-
 	cefClient.initializeSettings(cefClient.guiSettings.Settings)
 
 	cWindowName := C.CString(cefClient.guiSettings.WindowName)
@@ -206,7 +209,7 @@ func (cefClient *CEF) OpenWindow() {
 		args = &argv[0]
 	}
 
-	C.init_gui(cefClient.appHandler, cefClient.cefSettings, gs, cFuncArray, C.int(funcArraySize), C.int(argc), args, handle)
+	C.init_gui(cefClient.appHandler, cefClient.cefSettings, gs, C.int(argc), args, handle)
 }
 
 func (cefClient *CEF) initializeSettings(settings Settings) {
@@ -317,4 +320,68 @@ func (cefClient *CEF) Eval(js string) {
 
 func (cefClient *CEF) Run() {
 	C.run()
+}
+
+func (cefClient *CEF) WindowShow() {
+	C.window_helper_show()
+}
+
+func (cefClient *CEF) WindowHide() {
+	C.window_helper_hide()
+}
+
+func (cefClient *CEF) WindowCenter(width int, height int) {
+	C.window_helper_center_window(C.int(width), C.int(height))
+}
+
+func (cefClient *CEF) WindowClose() {
+	C.window_helper_close()
+}
+
+func (cefClient *CEF) WindowIsActive() bool {
+	return int(C.window_helper_is_active()) == 1
+}
+
+func (cefClient *CEF) WindowToTop() {
+	C.window_helper_bring_to_top()
+}
+
+func (cefClient *CEF) WindowSetAlwaysOnTop(state bool) {
+	C.window_helper_set_always_on_top(cefClient.boolToCInt(state))
+}
+
+func (cefClient *CEF) WindowIsAlwaysOnTop() bool {
+	return int(C.window_helper_is_always_on_top()) == 1
+}
+
+func (cefClient *CEF) WindowMaximize() {
+	C.window_helper_maximize()
+}
+
+func (cefClient *CEF) WindowMinimize() {
+	C.window_helper_minimize()
+}
+
+func (cefClient *CEF) WindowRestore() {
+	C.window_helper_restore()
+}
+
+func (cefClient *CEF) WindowFullscreen(fullscreen bool) {
+	C.window_helper_set_fullscreen(cefClient.boolToCInt(fullscreen))
+}
+
+func (cefClient *CEF) WindowIsMaximize() bool {
+	return int(C.window_helper_is_maximized()) == 1
+}
+
+func (cefClient *CEF) WindowIsMinimized() bool {
+	return int(C.window_helper_is_minimized()) == 1
+}
+
+func (cefClient *CEF) WindowIsFullscreen() bool {
+	return int(C.window_helper_is_fullscreen()) == 1
+}
+
+func (cefClient *CEF) WindowSetTitle(title string) {
+	C.window_helper_set_title(C.CString(title))
 }

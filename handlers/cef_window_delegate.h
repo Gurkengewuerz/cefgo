@@ -5,6 +5,7 @@
 #include "handlers/cef_vars.h"
 #include "handlers/cef_settings.h"
 #include "handlers/cef_client.h"
+#include "handlers/cef_browser_delegate.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_frame_capi.h"
 #include "include/capi/views/cef_window_capi.h"
@@ -88,13 +89,11 @@ void CEF_CALLBACK on_window_created (struct _cef_window_delegate_t* self, struct
     cef_string_t cef_url = {};
     cef_string_utf8_to_utf16(settings->url, strlen(settings->url), &cef_url);
 
-    //browser_view_delegate_t* bvd = initialize_browser_view_delegate();
-    //inc_ref_browser(bvd);
-    // (cef_browser_view_delegate_t *)bvd
+    browser_view_delegate_t* bvd = initialize_browser_view_delegate();
+    inc_ref_browser(bvd);
 
-    // TODO: Browser Delegator and set MAIN_FRAME
     (((window_delegate_t*)self)->browser_view) = cef_browser_view_create(client, &cef_url, &browser_settings,
-                            cef_dictionary_value_create(), cef_request_context_get_global_context(), NULL);
+                            cef_dictionary_value_create(), cef_request_context_get_global_context(), (cef_browser_view_delegate_t *)bvd);
     cef_browser_view_t* bv = (((window_delegate_t*)self)->browser_view);
     bv->base.base.add_ref((cef_base_ref_counted_t*)bv);
 

@@ -10,9 +10,9 @@ In order to run the examples, the CEF supporting files must be placed beside the
 - frameless window
 - single and sub executable support
 - Tested on Windows and Linux (macOS should work using seperate processes)
+- window functions (maximize, minimize, show, always on top, etc)
 
 ## TODO
-- add window functions (close, resize, etc. for JS callbacks especially)
 - console output
 - application icon
 

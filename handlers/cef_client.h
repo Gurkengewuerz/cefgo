@@ -6,6 +6,7 @@
 #include "handlers/cef_base.h"
 #include "handlers/cef_life_span_handler.h"
 #include "handlers/cef_draghandler.h"
+#include "handlers/cef_window_helper.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/views/cef_window_capi.h"
 
@@ -72,7 +73,6 @@ struct _cef_download_handler_t* CEF_CALLBACK get_download_handler(
 struct _cef_drag_handler_t* CEF_CALLBACK get_drag_handler(
         struct _cef_client_t* self) {
     DEBUG_CALLBACK("get_drag_handler\n");
-
     drag_handler *h;
     h = calloc(1, sizeof(drag_handler));
     initialize_draghandler(h);
@@ -182,7 +182,42 @@ int CEF_CALLBACK on_process_message_received(
       cef_process_id_t source_process,
       struct _cef_process_message_t* message) {
     DEBUG_CALLBACK("on_process_message_received\n");
-    return 0;
+    int success = 0;
+    cef_string_userfree_t name = message->get_name(message);
+    cef_string_utf8_t out = {};
+    cef_string_utf16_to_utf8(name->str, name->length, &out);
+    cef_string_userfree_free(name);
+    cef_list_value_t *arguments = message->get_argument_list(message);
+
+
+    if (strcmp(out.str, "show") == 0 && cef_currently_on(TID_UI) == 1) window_helper_show();
+    else if (strcmp(out.str, "hide") == 0 && cef_currently_on(TID_UI) == 1) window_helper_hide();
+    else if (strcmp(out.str, "close") == 0 && cef_currently_on(TID_UI) == 1) window_helper_close();
+    else if (strcmp(out.str, "bring_to_top") == 0 && cef_currently_on(TID_UI) == 1) window_helper_bring_to_top();
+    else if (strcmp(out.str, "maximize") == 0 && cef_currently_on(TID_UI) == 1) window_helper_maximize();
+    else if (strcmp(out.str, "minimize") == 0 && cef_currently_on(TID_UI) == 1) window_helper_minimize();
+    else if (strcmp(out.str, "restore") == 0 && cef_currently_on(TID_UI) == 1) window_helper_restore();
+
+    else if (strcmp(out.str, "set_always_on_top") == 0 && cef_currently_on(TID_UI) == 1) {
+        window_helper_set_always_on_top(arguments->get_int(arguments, 0));
+    } else if (strcmp(out.str, "center_window") == 0 && cef_currently_on(TID_UI) == 1) {
+        window_helper_center_window(arguments->get_int(arguments, 0), arguments->get_int(arguments, 1));
+    } else if (strcmp(out.str, "set_fullscreen") == 0 && cef_currently_on(TID_UI) == 1) {
+        window_helper_set_fullscreen(arguments->get_int(arguments, 0));
+    } else if (strcmp(out.str, "set_title") == 0 && cef_currently_on(TID_UI) == 1) {
+        cef_string_userfree_t value = arguments->get_string(arguments, 0);
+        cef_string_utf8_t title = {};
+        cef_string_utf16_to_utf8(value->str, value->length, &title);
+        cef_string_userfree_free(value);
+
+        window_helper_set_title(title.str);
+
+        cef_string_utf8_clear(&title);
+    }
+    cef_string_utf8_clear(&out);
+
+
+    return success;
 }
 
 void initialize_client_handler(client_t* c) {

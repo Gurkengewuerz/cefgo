@@ -1,7 +1,10 @@
 #pragma once
 
 #include <stdatomic.h>
+#include "handlers/cef_vars.h"
 #include "handlers/cef_base.h"
+#include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_browser_capi.h"
 
 
 typedef struct _browser_view_delegate_t {

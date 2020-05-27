@@ -28,7 +28,11 @@ void init(app *a) {
     app->base.add_ref((cef_base_ref_counted_t *)a);
 }
 
-int execute_process(app *a, int argc, char** argv, HINSTANCE instance) {
+int execute_process(app *a, char *goFuncMap[], int funcMapLength, int argc, char** argv, HINSTANCE instance) {
+    funcLength = funcMapLength;
+    if (funcMapLength > 0) {
+        funcMap = &goFuncMap[0];
+    }
 
     cef_main_args_t main_args = {};
     // Main args
@@ -53,8 +57,6 @@ void init_gui(
     app *a,
     cef_settings_t *settings,
     gui_settings guiSettings,
-    char *goFuncMap[],
-    int funcMapLength,
     int argc, char** argv, HINSTANCE instance) {
     DEBUG_CALLBACK("init_gui\n");
 
@@ -70,11 +72,6 @@ void init_gui(
     main_args.instance = instance;
     #endif
     #endif
-
-    funcLength = funcMapLength;
-    if (funcMapLength > 0) {
-        funcMap = &goFuncMap[0];
-    }
 
     cef_app_t *app = (cef_app_t *)a;
 

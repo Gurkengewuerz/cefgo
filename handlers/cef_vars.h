@@ -7,4 +7,4 @@
 static char **funcMap;
 static int funcLength;
 static cef_window_t* MAIN_WINDOW = NULL;
-static cef_frame_t* MAIN_FRAME;
+static cef_frame_t* MAIN_FRAME = NULL;

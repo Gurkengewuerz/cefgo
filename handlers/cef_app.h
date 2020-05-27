@@ -89,10 +89,14 @@ struct _cef_browser_process_handler_t*
 struct _cef_render_process_handler_t*
         CEF_CALLBACK get_render_process_handler(struct _cef_app_t* self) {
     DEBUG_CALLBACK("get_render_process_handler\n");
+
     if(cef_v8context_in_context() == 1) {
         cef_v8context_t* cntx = cef_v8context_get_current_context();
         int isValid = cntx->is_valid(cntx);
         if(isValid == 1) {
+            cef_browser_t* browser = cntx->get_browser(cntx);
+            MAIN_FRAME = browser->get_main_frame(browser);
+
             cntx->enter(cntx);
 
             invocation_handler  *h;
@@ -112,7 +116,7 @@ struct _cef_render_process_handler_t*
                 handler->base.add_ref((cef_base_ref_counted_t *)h);
                 cef_v8value_t *fn = cef_v8value_create_function(&cef_functionName, handler);
                 invocation->set_value_bykey(invocation, &cef_functionName, fn, V8_PROPERTY_ATTRIBUTE_NONE);
-                //DEBUG_CALLBACK("%s -> %d\n", functionName, status);
+//                printf("%s -> %d\n", functionName, status);
             }
             cntx->exit(cntx);
         }

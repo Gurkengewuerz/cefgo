@@ -30,13 +30,13 @@ func main() {
 			B: 51,
 			A: 255,
 		},
-		Settings:      cef.Settings{},
-		BindFunc:      make(map[string]interface{}),
+		Settings: cef.Settings{},
+		BindFunc: make(map[string]interface{}),
 	}
 
 	cefSettings := cef.Settings{}
 	cefSettings.RemoteDebuggingPort = 6696
-	cefSettings.LogSeverity = cef.LOGSEVERITY_VERBOSE
+	cefSettings.LogSeverity = cef.LOGSEVERITY_WARNING
 	cefSettings.CommandLineArgsDisabled = false
 
 	guiSettings.Settings = cefSettings
@@ -45,6 +45,26 @@ func main() {
 		log.Println("test()")
 		client.Eval("console.log('Test aus Funktion');")
 		return "Test aus Funktion!"
+	}
+
+	guiSettings.BindFunc["maximize"] = func() {
+		client.WindowMaximize()
+	}
+
+	guiSettings.BindFunc["minimize"] = func() {
+		client.WindowMinimize()
+	}
+
+	guiSettings.BindFunc["alwaysOnTop"] = func(onTop bool) {
+		client.WindowSetAlwaysOnTop(onTop)
+	}
+
+	guiSettings.BindFunc["setFullscreen"] = func(fs bool) {
+		client.WindowFullscreen(fs)
+	}
+
+	guiSettings.BindFunc["setTitle"] = func(title string) {
+		client.WindowSetTitle(title)
 	}
 
 	client = cef.New(guiSettings, log.New(os.Stdout, "[example app]", 0))
