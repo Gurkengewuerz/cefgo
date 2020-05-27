@@ -13,6 +13,10 @@ typedef struct _gui_settings {
     int can_resize;
     int height;
     int width;
+    uint8_t BGA;
+    uint8_t BGR;
+    uint8_t BGG;
+    uint8_t BGB;
     char* window_icon;
     char* window_app_icon;
 } gui_settings;

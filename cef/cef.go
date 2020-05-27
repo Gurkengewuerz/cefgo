@@ -62,8 +62,13 @@ func New(settings GuiSettings, logger *log.Logger) *CEF {
 }
 
 func (cefClient *CEF) InitSubprocess() int {
-	argc, argv, handle := cefClient.fillMainArgs() // &cefClient.args[0]
-	return int(C.execute_process(cefClient.appHandler, C.int(argc), &argv[0], handle))
+	argc, argv, handle := cefClient.fillMainArgs()
+	var args **C.char
+	if argv != nil {
+		args = &argv[0]
+	}
+
+	return int(C.execute_process(cefClient.appHandler, C.int(argc), args, handle))
 }
 
 func (cefClient *CEF) bind(name string, f interface{}) error {
@@ -182,9 +187,26 @@ func (cefClient *CEF) OpenWindow() {
 	gs.window_icon = C.CString(cefClient.guiSettings.WindowIcon)
 	gs.window_app_icon = C.CString(cefClient.guiSettings.WindowAppIcon)
 
-	argc, argv, handle := cefClient.fillMainArgs() // &cefClient.args[0]
+	if cefClient.guiSettings.BackgroundColor != nil {
+		r, g, b, a := cefClient.guiSettings.BackgroundColor.RGBA()
+		gs.BGA = (C.uint8_t)(a)
+		gs.BGR = (C.uint8_t)(r)
+		gs.BGG = (C.uint8_t)(g)
+		gs.BGB = (C.uint8_t)(b)
+	} else {
+		gs.BGA = C.uint8_t(255)
+		gs.BGR = C.uint8_t(255)
+		gs.BGG = C.uint8_t(255)
+		gs.BGB = C.uint8_t(255)
+	}
 
-	C.init_gui(cefClient.appHandler, cefClient.cefSettings, gs, cFuncArray, C.int(funcArraySize), C.int(argc), &argv[0], handle)
+	argc, argv, handle := cefClient.fillMainArgs()
+	var args **C.char
+	if argv != nil {
+		args = &argv[0]
+	}
+
+	C.init_gui(cefClient.appHandler, cefClient.cefSettings, gs, cFuncArray, C.int(funcArraySize), C.int(argc), args, handle)
 }
 
 func (cefClient *CEF) initializeSettings(settings Settings) {

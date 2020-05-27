@@ -43,18 +43,6 @@ int execute_process(app *a, int argc, char** argv, HINSTANCE instance) {
     #endif
     #endif
 
-    printf("->>>>>>>>%s\n", main_args.argv[0]);
-
-    printf("\nProcess args (2 => %d): ", argc);
-    if (argc == 1) {
-        printf("none (Main process)");
-    } else {
-        for(int index = 0; index < argc; index++) {
-            printf("%s ", argv[index]);
-        }
-    }
-    printf("\n\n");
-
     cef_app_t *app = (cef_app_t *)a;
     app->base.add_ref((cef_base_ref_counted_t *)a);
     int code = cef_execute_process(&main_args, app, NULL);
@@ -90,6 +78,8 @@ void init_gui(
 
     cef_app_t *app = (cef_app_t *)a;
 
+    uint32_t argb = guiSettings.BGA<<24 | guiSettings.BGR<<16 | guiSettings.BGG<<8 | guiSettings.BGB;
+    settings->background_color = argb;
     // Initialize CEF
     DEBUG_CALLBACK("cef_initialize\n");
     app->base.add_ref((cef_base_ref_counted_t *)a);

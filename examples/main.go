@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gurkengewuerz/cefgo/cef"
+	"image/color"
 	"log"
 	"os"
 )
@@ -23,6 +24,12 @@ func main() {
 		Width:         450,
 		WindowIcon:    "",
 		WindowAppIcon: "",
+		BackgroundColor: color.RGBA{
+			R: 51,
+			G: 51,
+			B: 51,
+			A: 255,
+		},
 		Settings:      cef.Settings{},
 		BindFunc:      make(map[string]interface{}),
 	}
