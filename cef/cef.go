@@ -29,10 +29,12 @@ import (
 )
 
 type CEF struct {
-	logger      *log.Logger
-	guiSettings GuiSettings
-	appHandler  *C.struct__app
-	cefSettings *C.struct__cef_settings_t
+	logger         *log.Logger
+	guiSettings    GuiSettings
+	appHandler     *C.struct__app
+	cefSettings    *C.struct__cef_settings_t
+	windowIconData []byte
+	appIconData    []byte
 }
 
 var _BindFunc map[string]func(req string) (interface{}, error)
@@ -51,10 +53,12 @@ func New(settings GuiSettings, logger *log.Logger) *CEF {
 	}
 
 	c := &CEF{
-		logger:      logger,
-		guiSettings: settings,
-		appHandler:  nil,
-		cefSettings: nil,
+		logger:         logger,
+		guiSettings:    settings,
+		appHandler:     nil,
+		cefSettings:    nil,
+		windowIconData: nil,
+		appIconData:    nil,
 	}
 
 	c.initializeGlobalCStructures()
@@ -201,6 +205,38 @@ func (cefClient *CEF) OpenWindow() {
 		gs.BGR = C.uint8_t(255)
 		gs.BGG = C.uint8_t(255)
 		gs.BGB = C.uint8_t(255)
+	}
+
+	gs.window_icon_data = nil
+	gs.window_icon_data_size = C.int(0)
+
+	if cefClient.guiSettings.WindowIcon != "" {
+		if _, err := os.Stat(cefClient.guiSettings.WindowIcon); err == nil {
+			windowIconData, err := ioutil.ReadFile(cefClient.guiSettings.WindowIcon)
+			if err == nil {
+				cefClient.windowIconData = windowIconData
+				gs.window_icon_data = unsafe.Pointer(&cefClient.windowIconData[0])
+				gs.window_icon_data_size = C.int(len(windowIconData))
+			}
+		} else {
+			cefClient.logger.Printf("File %s does not exist\n", cefClient.guiSettings.WindowIcon)
+		}
+	}
+
+	gs.app_icon_data = nil
+	gs.app_icon_data_size = C.int(0)
+
+	if cefClient.guiSettings.WindowAppIcon != "" {
+		if _, err := os.Stat(cefClient.guiSettings.WindowAppIcon); err == nil {
+			appIconData, err := ioutil.ReadFile(cefClient.guiSettings.WindowAppIcon)
+			if err == nil {
+				cefClient.appIconData = appIconData
+				gs.app_icon_data = unsafe.Pointer(&cefClient.appIconData[0])
+				gs.app_icon_data_size = C.int(len(appIconData))
+			}
+		} else {
+			cefClient.logger.Printf("File %s does not exist\n", cefClient.guiSettings.WindowAppIcon)
+		}
 	}
 
 	argc, argv, handle := cefClient.fillMainArgs()

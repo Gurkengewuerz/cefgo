@@ -8,6 +8,7 @@
 #include "handlers/cef_browser_delegate.h"
 #include "include/capi/cef_browser_capi.h"
 #include "include/capi/cef_frame_capi.h"
+#include "include/capi/cef_image_capi.h"
 #include "include/capi/views/cef_window_capi.h"
 #include "include/capi/views/cef_view_capi.h"
 #include "include/capi/views/cef_window_delegate_capi.h"
@@ -111,6 +112,19 @@ void CEF_CALLBACK on_window_created (struct _cef_window_delegate_t* self, struct
 
     if(settings->maximized == 1) window->maximize(window);
     window->set_fullscreen(window, settings->fullscreen);
+
+    if(settings->window_icon_data_size != 0) {
+        cef_image_t* windowIcon = cef_image_create();
+        windowIcon->add_png(windowIcon, 1.0, settings->window_icon_data, settings->window_icon_data_size);
+        window->set_window_icon(window, windowIcon);
+    }
+
+    if(settings->app_icon_data_size != 0) {
+        cef_image_t* appIcon = cef_image_create();
+        appIcon->add_png(appIcon, 1.0, settings->app_icon_data, settings->app_icon_data_size);
+        window->set_window_app_icon(window, appIcon);
+    }
+
 }
 
 void inc_ref (struct _window_delegate_t* self) {

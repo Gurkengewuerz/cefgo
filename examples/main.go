@@ -10,6 +10,8 @@ import (
 var client *cef.CEF
 
 func main() {
+	wd, _ := os.Getwd()
+
 	guiSettings := cef.GuiSettings{
 		WindowName:    "CEF Test",
 		StartURL:      "https://app01.mc8051.de",
@@ -23,7 +25,7 @@ func main() {
 		Height:        700,
 		Width:         450,
 		WindowIcon:    "",
-		WindowAppIcon: "",
+		WindowAppIcon: wd + "/icon.png",
 		BackgroundColor: color.RGBA{
 			R: 51,
 			G: 51,

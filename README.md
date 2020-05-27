@@ -11,10 +11,10 @@ In order to run the examples, the CEF supporting files must be placed beside the
 - single and sub executable support
 - Tested on Windows and Linux (macOS should work using seperate processes)
 - window functions (maximize, minimize, show, always on top, etc)
+- application icon
 
 ## TODO
-- console output
-- application icon
+- console output handler
 
 ## CEF Version and Compatibility
 83.3.9+ged43e55+chromium-83.0.4103.61

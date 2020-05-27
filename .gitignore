@@ -6,3 +6,4 @@ include/*
 !include/.gitkeep
 Release/*
 !Release/.gitkeep
+!Release/icon.png
