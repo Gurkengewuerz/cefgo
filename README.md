@@ -1,4 +1,5 @@
 # cefgo
+[![Build Status](https://giteaci.mc8051.de/api/badges/Gurkengewuerz/cefgo/status.svg?ref=refs/heads/master)](https://giteaci.mc8051.de/Gurkengewuerz/cefgo)  [Artifacts](https://artifacts.mc8051.de/Gurkengewuerz/cefgo)
 
 These are simple bindings for [CEF](https://bitbucket.org/chromiumembedded/cef/src/master/) `C API` in Go.
 It's not documented yet, but you can follow the [example](examples/main.go) to figure out how to use. It's pretty simple.  

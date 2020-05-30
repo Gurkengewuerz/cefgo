@@ -1,0 +1,103 @@
+kind: pipeline
+type: docker
+name: build-go-amd64
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: prepare
+    image: techknowlogick/xgo:latest
+    volumes:
+      - name: cache
+        path: /release
+    commands:
+      - export PATH=$PATH:$GOPATH/bin
+      - export GO111MODULE=on
+      - go env
+      - "sed -i '157s/^[ \t]*//' /build.sh"
+      - "sed -i '153,156d;158d' /build.sh"
+      - go generate -mod=vendor ./...
+
+  - name: build-win-64
+    image: techknowlogick/xgo:latest
+    volumes:
+      - name: cache
+        path: /release
+    commands:
+      - export PATH=$PATH:$GOPATH/bin
+      - export GO111MODULE=on
+      - "sed -i '157s/^[ \t]*//' /build.sh"
+      - "sed -i '153,156d;158d' /build.sh"
+      - ln -s /drone/src /source
+      - rm -r include/* || true
+      - rm -r Release/* || true
+      - wget http://opensource.spotify.com/cefbuilds/cef_binary_83.3.11%2Bg1fac1e5%2Bchromium-83.0.4103.61_windows64_minimal.tar.bz2
+      - tar -xjf *.tar.bz2
+      - rm *.tar.bz2
+      - mv cef_*/include/* include/
+      - mv cef_*/Re*/* Release/
+      - rm -r cef_*/
+      - xgo -x -targets 'windows/amd64' -pkg 'examples/mainthread' -out cefgo .
+      - xgo -x -targets 'windows/amd64' -pkg 'examples/subprocess' -out helper .
+      - cp /build/* Release/
+      - ls -lah Release/
+      - cd Release/; zip -r /release/windows-amd64.zip *
+
+  - name: build-linux-64
+    image: techknowlogick/xgo:latest
+    volumes:
+      - name: cache
+        path: /release
+    commands:
+      - export PATH=$PATH:$GOPATH/bin
+      - export GO111MODULE=on
+      - "sed -i '157s/^[ \t]*//' /build.sh"
+      - "sed -i '153,156d;158d' /build.sh"
+      - apt-get update && apt-get install -y libgbm-dev libxss-dev
+      - ln -s /drone/src /source
+      - rm -r include/* || true
+      - rm -r Release/* || true
+      - wget http://opensource.spotify.com/cefbuilds/cef_binary_83.3.11%2Bg1fac1e5%2Bchromium-83.0.4103.61_linux64_minimal.tar.bz2
+      - tar -xjf *.tar.bz2
+      - rm *.tar.bz2
+      - mv cef_*/include/* include/
+      - mv cef_*/Re*/* Release/
+      - rm -r cef_*/
+      - xgo -x -targets 'linux/amd64' -pkg 'examples/mainthread' -out cefgo .
+      - xgo -x -targets 'linux/amd64' -pkg 'examples/subprocess' -out helper .
+      - cp /build/* Release/
+      - ls -lah Release/
+      - cd Release/; zip -r /release/linux-amd64.zip *
+
+  - name: artifacts
+    image: alpine:latest
+    volumes:
+      - name: cache
+        path: /release
+    commands:
+      - cat /etc/issue
+      - apk add --no-cache openssh-client ca-certificates sshpass
+      - mkdir -p ~/.ssh
+      - chmod 700 ~/.ssh
+      - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+      - export REMOTE_PATH=/data/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}/${DRONE_REPO_BRANCH}/$(date +'%Y%m%d-%H%M%S')-${DRONE_COMMIT_SHA:0:9}/
+      - export SSHPASS=$${REMOTE_PASSWORD}
+      - sshpass -e ssh $${REMOTE_USERNAME}@$${REMOTE_HOST} "mkdir -p $REMOTE_PATH"
+      - "sshpass -e scp -r /release/* $${REMOTE_USERNAME}@$${REMOTE_HOST}:$REMOTE_PATH"
+    environment:
+      REMOTE_USERNAME:
+        from_secret: remote_username
+      REMOTE_PASSWORD:
+        from_secret: remote_password
+      REMOTE_HOST:
+        from_secret: remote_host
+    when:
+      event:
+        - push
+        - tag
+
+volumes:
+  - name: cache
+    temp: {}
