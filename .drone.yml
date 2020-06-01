@@ -83,6 +83,9 @@ steps:
       - "sed -i '153,156d;158d' /build.sh"
       - dpkg --add-architecture arm64
       - dpkg --print-foreign-architectures
+      - sed -i "s/^deb http/deb [arch=$(dpkg --print-architecture)] http/" /etc/apt/sources.list
+      - sed "s/CODENAME/$(sed 's/UBUNTU_CODENAME=//;t;d' /etc/os-release)/g" examples/arm64-ubuntu-sources >> /etc/apt/sources.list
+      - cat /etc/apt/sources.list
       - apt-get update && apt-get install -y libgbm-dev:arm64 libxss-dev:arm64
       - ln -s /drone/src /source
       - rm -r include/* || true
