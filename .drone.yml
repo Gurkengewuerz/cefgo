@@ -114,7 +114,7 @@ steps:
       - mkdir -p ~/.ssh
       - chmod 700 ~/.ssh
       - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-      - export REMOTE_PATH=/data/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}/${DRONE_REPO_BRANCH}/$(date +'%Y%m%d-%H%M%S')-${DRONE_COMMIT_SHA:0:9}/
+      - export REMOTE_PATH=/data/${DRONE_REPO_OWNER}/${DRONE_REPO_NAME}/${DRONE_BRANCH}/$(date +'%Y%m%d-%H%M%S')-${DRONE_COMMIT_SHA:0:9}/
       - export SSHPASS=$${REMOTE_PASSWORD}
       - sshpass -e ssh $${REMOTE_USERNAME}@$${REMOTE_HOST} "mkdir -p $REMOTE_PATH"
       - "sshpass -e scp -r /release/* $${REMOTE_USERNAME}@$${REMOTE_HOST}:$REMOTE_PATH"
