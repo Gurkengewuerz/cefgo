@@ -1,0 +1,13 @@
+
+
+deb [arch=arm64] http://ports.ubuntu.com/ CODENAME main restricted
+
+deb [arch=arm64] http://ports.ubuntu.com/ CODENAME-updates main restricted
+
+deb [arch=arm64] http://ports.ubuntu.com/ CODENAME universe
+deb [arch=arm64] http://ports.ubuntu.com/ CODENAME-updates universe
+
+deb [arch=arm64] http://ports.ubuntu.com/ CODENAME multiverse
+deb [arch=arm64] http://ports.ubuntu.com/ CODENAME-updates multiverse
+
+deb [arch=arm64] http://ports.ubuntu.com/ CODENAME-backports main restricted universe multiverse
