@@ -96,8 +96,8 @@ steps:
       - mv cef_*/include/* include/
       - mv cef_*/Re*/* Release/
       - rm -r cef_*/
-      - xgo -x -targets 'linux/amd64' -pkg 'examples/mainthread' -out cefgo .
-      - xgo -x -targets 'linux/amd64' -pkg 'examples/subprocess' -out helper .
+      - xgo -x -targets 'linux/arm64' -pkg 'examples/mainthread' -out cefgo .
+      - xgo -x -targets 'linux/arm64' -pkg 'examples/subprocess' -out helper .
       - cp /build/* Release/
       - ls -lah Release/
       - cd Release/; zip -r /release/linux-arm64.zip *
