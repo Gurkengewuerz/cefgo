@@ -81,7 +81,9 @@ steps:
       - export GO111MODULE=on
       - "sed -i '157s/^[ \t]*//' /build.sh"
       - "sed -i '153,156d;158d' /build.sh"
-      - apt-get update && apt-get install -y libgbm-dev libxss-dev
+      - dpkg --add-architecture arm64
+      - dpkg --print-foreign-architectures
+      - apt-get update && apt-get install -y libgbm-dev:arm64 libxss-dev:arm64
       - ln -s /drone/src /source
       - rm -r include/* || true
       - cd Release/; find . -print | sed -e 's/^/"/g' -e 's/$/"/g' | grep -v "\".\"" | grep -v "\"./icon.png\"" | grep -v "\"./.gitkeep\"" | xargs rm -rf; cd .. || true
