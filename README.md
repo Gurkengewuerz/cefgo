@@ -19,10 +19,10 @@ In order to run the examples, the CEF supporting files must be placed beside the
 
 ## CEF Version and Compatibility
 83.3.9+ged43e55+chromium-83.0.4103.61
-This lib is compiled against CEF 83.3.9+ged43e55+chromium-83.0.4103.61 / Chromium 83.0.4103.61 from http://opensource.spotify.com/cefbuilds/index.html
+This lib is compiled against CEF 83.3.9+ged43e55+chromium-83.0.4103.61 / Chromium 83.0.4103.61 from https://cef-builds.spotifycdn.com/index.html
 
 ## Installation
-1. Download the CEF SDK for your system from [Spotify](http://opensource.spotify.com/cefbuilds/index.html).
+1. Download the CEF SDK for your system from [Spotify](https://cef-builds.spotifycdn.com/index.html).
 2. Locate your installation of cefgo (typically in $GOPATH/src/github.com/Gurkengewuerz/cefgo or $GOPATH/pkg/mod/github.com/Gurkengewuerz/cefgo), and extract the CEF SDK.  
     Copy include/* to cefgo/include  
     Copy Release/* to cefgo/Release  
