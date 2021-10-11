@@ -32,7 +32,7 @@ Callbacks need to be registered before browsers are created. Currently only basi
 Objects and Arrays are possible, but not done. If you are running in multi-process mode (the default - as opposed to single-process) keep in mind the callback will be executed in the browser process and not in the main process.
 
 ## DevTools
-Set the a `RemoteDebuggingPort` in the `Settings` struct. Start your application and point your browser to ``http://127.0.0.1:<port>`.
+Set the a `RemoteDebuggingPort` in the `Settings` struct. Start your application and point your browser to `http://127.0.0.1:<port>`.
 ## Updating the CEF Version
 The process for updating CEF to a newer version is relatively simple.
 1. Download a new version from Spotify and extract.
