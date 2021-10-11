@@ -36,6 +36,7 @@ type CEF struct {
 }
 
 var _BindFunc map[string]func(req string) (interface{}, error)
+var ConsoleMessageCallback consoleMessageCallbackI
 
 func (cefClient *CEF) SetLogger(logger *log.Logger) {
 	cefClient.logger = logger

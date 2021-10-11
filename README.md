@@ -12,9 +12,6 @@ In order to run the examples, the CEF supporting files must be placed beside the
 - window functions (maximize, minimize, show, always on top, etc)
 - application icon
 
-## TODO
-- console output handler
-
 ## CEF Version and Compatibility
 This lib is compiled against CEF 94.4.9+g09ee681+chromium-94.0.4606.71 / Chromium 94.0.4606.71 from https://cef-builds.spotifycdn.com/index.html
 

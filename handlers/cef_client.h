@@ -6,6 +6,7 @@
 #include "handlers/cef_base.h"
 #include "handlers/cef_life_span_handler.h"
 #include "handlers/cef_draghandler.h"
+#include "handlers/cef_displayhandler.h"
 #include "handlers/cef_window_helper.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/views/cef_window_capi.h"
@@ -54,7 +55,13 @@ struct _cef_dialog_handler_t* CEF_CALLBACK get_dialog_handler(
 struct _cef_display_handler_t* CEF_CALLBACK get_display_handler(
         struct _cef_client_t* self) {
     DEBUG_CALLBACK("get_display_handler\n");
-    return NULL;
+    display_handler *h;
+    h = calloc(1, sizeof(display_handler));
+    initialize_displayhandler(h);
+    cef_display_handler_t *handler = &h->handler;
+    handler->base.add_ref((cef_base_ref_counted_t *)h);
+
+    return handler;
 }
 
 ///

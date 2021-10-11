@@ -100,6 +100,7 @@ struct _client_t;
 struct _app;
 struct _invocation_handler;
 struct _drag_handler;
+struct _display_handler;
 struct _view_delegate_t;
 struct _browser_view_delegate_t;
 
@@ -108,6 +109,7 @@ void initialize_life_span_handler_t_base(struct _life_span_handler_t *object);
 void initialize_view_delegate_t_base(struct _view_delegate_t *object);
 void initialize_browser_view_delegate_t_base(struct _browser_view_delegate_t *object);
 void initialize_drag_handler_base(struct _drag_handler *object);
+void initialize_display_handler_base(struct _display_handler *object);
 void initialize_client_t_base(struct _client_t *object);
 void initialize_app_base(struct _app *object);
 void initialize_invocation_handler_base(struct _invocation_handler *object);
@@ -118,6 +120,7 @@ void initialize_invocation_handler_base(struct _invocation_handler *object);
 	struct _view_delegate_t*: initialize_view_delegate_t_base, \
 	struct _browser_view_delegate_t*: initialize_browser_view_delegate_t_base, \
 	struct _drag_handler*: initialize_drag_handler_base, \
+	struct _display_handler*: initialize_display_handler_base, \
 	struct _client_t*: initialize_client_t_base, \
 	struct _app*: initialize_app_base, \
 	struct _invocation_handler*: initialize_invocation_handler_base)(T)
