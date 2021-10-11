@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/gurkengewuerz/cefgo/cef"
 	"image/color"
 	"log"
 	"os"
+
+	"github.com/gurkengewuerz/cefgo/cef"
 )
 
 var client *cef.CEF
@@ -14,14 +15,14 @@ func main() {
 
 	guiSettings := cef.GuiSettings{
 		WindowName:    "CEF Test",
-		StartURL:      "https://app01.mc8051.de",
+		StartURL:      "https://mc8051.de",
 		IsFrameless:   false,
 		IsMaximized:   false,
 		IsFullscreen:  false,
 		CanMaximize:   true,
 		CanMinimize:   true,
 		CanResize:     true,
-		SubExecutable: false,
+		SubExecutable: true,
 		Height:        700,
 		Width:         450,
 		WindowIcon:    "",

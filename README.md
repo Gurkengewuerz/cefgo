@@ -18,8 +18,7 @@ In order to run the examples, the CEF supporting files must be placed beside the
 - console output handler
 
 ## CEF Version and Compatibility
-83.3.9+ged43e55+chromium-83.0.4103.61
-This lib is compiled against CEF 83.3.9+ged43e55+chromium-83.0.4103.61 / Chromium 83.0.4103.61 from https://cef-builds.spotifycdn.com/index.html
+This lib is compiled against CEF 94.4.9+g09ee681+chromium-94.0.4606.71 / Chromium 94.0.4606.71 from https://cef-builds.spotifycdn.com/index.html
 
 ## Installation
 1. Download the CEF SDK for your system from [Spotify](https://cef-builds.spotifycdn.com/index.html).

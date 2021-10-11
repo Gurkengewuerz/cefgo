@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 #define HINSTANCE int
 #endif
 
@@ -36,7 +36,7 @@ int execute_process(app *a, char *goFuncMap[], int funcMapLength, int argc, char
 
     cef_main_args_t main_args = {};
     // Main args
-    #ifdef __unix__
+    #if defined(__unix__) || defined(__APPLE__)
     main_args.argc = argc;
     main_args.argv = argv;
     #else
@@ -62,7 +62,7 @@ void init_gui(
 
     cef_main_args_t main_args = {};
     // Main args
-    #ifdef __unix__
+    #if defined(__unix__) || defined(__APPLE__)
     main_args.argc = argc;
     main_args.argv = argv;
     #else

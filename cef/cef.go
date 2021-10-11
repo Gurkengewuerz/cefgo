@@ -4,7 +4,7 @@ package cef
 #cgo CFLAGS: -I./../ -DIS_GO=TRUE
 #cgo windows LDFLAGS: -L./../Release -lcef
 #cgo linux LDFLAGS: -L./../Release -lcef -Wl,-rpath=./
-#cgo darwin LDFLAGS: -L./../Release -lcef -Wl,-rpath=./
+#cgo darwin LDFLAGS: -F./Release -framework "Chromium Embedded Framework"
 
 #include <stdio.h>
 #include <string.h>
@@ -19,13 +19,11 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"reflect"
-	"unsafe"
-)
-import (
 	"log"
 	"os"
+	"reflect"
 	"runtime"
+	"unsafe"
 )
 
 type CEF struct {

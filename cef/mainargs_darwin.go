@@ -4,7 +4,7 @@ package cef
 #cgo CFLAGS: -I./../
 #include <stdlib.h>
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 #define HINSTANCE int
 #endif
 */
